@@ -87,8 +87,10 @@ annotateVariantsFromVcf <- function(vcf.path, somatic=FALSE, do_filter=TRUE){
     ## write file
     annotations <- data.frame(sapply(annotationsDruggability, as.character), stringsAsFactors = FALSE)
 #    annotations <- rbind.fill(annotations, annotateIndels(vcf.path))
-    annotationsFinal <- subset(annotations, !is.na(reported))
-    annotationsFinal[is.na(annotationsFinal)] <- ""
+    if(do_filter){
+      annotations <- subset(annotations, !is.na(reported))
+    }
+    annotations[is.na(annotations)] <- ""
     write.table(annotationsFinal, gsub(".vcf.gz", ".annotated.txt", vcf.path), sep="\t", row.names=FALSE, quote=FALSE)
     annotationsFinal
 }

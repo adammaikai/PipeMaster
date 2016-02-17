@@ -19,6 +19,6 @@ fi
 bgzip -f $2/$1/$1_merged.vcf
 tabix -f -p vcf $2/$1/$1_merged.vcf.gz
 
-Rscript ~/.virtualenvs/op2/omics_pipe/omics_pipe/scripts/annotateVariantsFromVcf.R $2/$1/$1\_merged.vcf.gz FALSE TRUE
+Rscript ~/.virtualenvs/op2/omics_pipe/omics_pipe/scripts/annotateVariantsFromVcf.R $2/$1/$1\_merged.vcf.gz FALSE FALSE
 
 exit 0

@@ -29,8 +29,8 @@ def Samtools_pileup(sample, Samtools_pileup_flag):
     if p.DNA["NORMAL_EXT"]:
         samples.append(sample + p.DNA["NORMAL_EXT"])
     for sample in samples:
-        spawn_job(jobname = 'Samtools_pileup', SAMPLE = sample, LOG_PATH = p.OMICSPIPE["LOG_PATH"], RESULTS_EMAIL = p.OMICSPIPE["EMAIL"], SCHEDULER = p.OMICSPIPE["SCHEDULER"], walltime = p.SAMTOOLS["WALLTIME"], queue = p.OMICSPIPE["QUEUE"], nodes = p.SAMTOOLS["NODES"], ppn = p.SAMTOOLS["CPU"], memory = p.SAMTOOLS["MEMORY"], script = "/Samtools_pileup.sh", args_list = [sample, p.PREPROCESS["ALIGNMENT_DIR"], p.SAMTOOLS["VERSION"], p.SAMTOOLS["GENOME"], p.CAPTURE_KIT_BED])
-        job_status(jobname = 'Samtools_pileup', resultspath = p.PREPROCESS["ALIGNMENT_DIR"] + "/" + sample, SAMPLE = sample,  outputfilename = sample + ".pileup", FLAG_PATH = p.OMICSPIPE["FLAG_PATH"])
+        spawn_job(jobname = 'Samtools_pileup', SAMPLE = sample, LOG_PATH = p.OMICSPIPE["LOG_PATH"], RESULTS_EMAIL = p.OMICSPIPE["EMAIL"], SCHEDULER = p.OMICSPIPE["SCHEDULER"], walltime = p.SAMTOOLS["WALLTIME"], queue = p.OMICSPIPE["QUEUE"], nodes = p.SAMTOOLS["NODES"], ppn = p.SAMTOOLS["CPU"], memory = p.SAMTOOLS["MEMORY"], script = "/Samtools_pileup.sh", args_list = [sample, p.SAMTOOLS["ALIGNMENT_DIR"], p.SAMTOOLS["VERSION"], p.SAMTOOLS["GENOME"], p.CAPTURE_KIT_BED])
+        job_status(jobname = 'Samtools_pileup', resultspath = p.SAMTOOLS["ALIGNMENT_DIR"] + "/" + sample, SAMPLE = sample,  outputfilename = sample + ".pileup", FLAG_PATH = p.OMICSPIPE["FLAG_PATH"])
     return
 
 if __name__ == '__main__':

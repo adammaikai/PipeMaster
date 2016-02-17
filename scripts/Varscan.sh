@@ -17,13 +17,13 @@ mkdir -p "$7/$1"
 ## varscan2 call variants
 VarScan.v$5.jar \
 mpileup2snp \
-$6/$1/$1\.pileup \
+$6/$1/$1\.flt.pileup \
 $8 \
 > $2/$1\_varscan_snp.vcf
 
 VarScan.v$5.jar \
 mpileup2indel \
-$6/$1/$1\.pileup \
+$6/$1/$1\.flt.pileup \
 $8 \
 > $2/$1\_varscan_indel.vcf
 
