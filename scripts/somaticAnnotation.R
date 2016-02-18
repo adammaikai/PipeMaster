@@ -82,6 +82,7 @@ somaticAnnotation <- function(vcf.path, do_filter=TRUE){
                                                    "CANONICAL_SPLICE", "REGULATORY"))
     annos <- arrange(data.frame(subset(annos, is.na(exac.af) | exac.af < 0.05)), -dbnsfp.mutationtaster.converted_rankscore)
   }
+  annos <- data.frame(annos)
   setnames(annos, 
            old = c("query", "dbsnp.rsid", "cadd.consequence", "snpeff.ann",
                    "cosmic.cosmic_id", "cosmic.tumor_site", "exac.af", "cadd.phred",
@@ -101,16 +102,19 @@ somaticAnnotation <- function(vcf.path, do_filter=TRUE){
   ## write file
   annotations <- data.frame(sapply(annotationsDruggability, as.character), stringsAsFactors = FALSE)
   annotations <- rbind.fill(annotations, annotateIndels(vcf.path))
-  annotationsFinal <- subset(annotations, !is.na(reported))
-  annotationsFinal[is.na(annotationsFinal)] <- ""
-  annotationsFinal
+  if(do_filter){
+	annotations <- subset(annotations, !is.na(reported))	
+	}
+  annotations[is.na(annotations)] <- ""
+  annotations
 }
 
 args <- commandArgs(TRUE)
 prefix <- args[1]
 varscan <- args[2]
 mutect <- args[3]
-som <- do.call(rbind.fill, lapply(c(varscan, mutect), somaticAnnotation))
+filter <- args[4]
+som <- do.call(rbind.fill, lapply(c(varscan, mutect), function(i) somaticAnnotation(i, do_filter=filter)))
 #df <- subset(som, Variant %in% subset(data.frame(table(som$Variant)), Freq > 1)$Var1)
 df <- som[order(som$Gene), ]
 
