@@ -7,22 +7,9 @@ library(data.table)
      paste(unlist(list(...)), sep = ",", collapse = ",")
  }
 
-annotateIndels <- function(vcf.path, somatic=FALSE){
-  ## intogen file
-  intogen <- read.csv("/data/database/druggability/Mutational_drivers_per_tumor_type.tsv", sep="\t", comment.char="#")
-  names(intogen) <- c("Gene", "tumor_type")
-  intogen <- aggregate(tumor_type ~ Gene, intogen, .collapse)
+annotateIndels <- function(vcf.path){
 
-  ## panCancer file
-  panCancer <- read.csv("/data/database/druggability/NanostringPanCancerGeneList.csv", sep=",", comment.char="#")
-  names(panCancer) <- c("Gene", "reported")
-  panCancer <- subset(aggregate(reported ~ Gene, panCancer, .collapse), !grepl("reference", reported) & !grepl("control", reported))
-
-  ## intogen druggability
-  druggability <- read.csv("/data/database/druggability/Protein_Drug_Interactions.tsv", sep="\t", comment.char="#")
-  druggability <- druggability[, c("geneHGNCsymbol", "Drug_name")]
-  druggability <- aggregate(Drug_name ~ geneHGNCsymbol, druggability, .collapse)
-  names(druggability) <- c("Gene", "drug_name")
+  cancer_genes <- read.csv("/data/database/druggability/cancer_genes.txt", stringsAsFactors = FALSE, sep="\t")
   
   vcf.object <- readVcf(vcf.path, genome="hg19")
   indel <- vcf.object[isIndel(vcf.object)]
@@ -61,13 +48,13 @@ annotateIndels <- function(vcf.path, somatic=FALSE){
     coverage$NORMAL.ALT.AF <- lapply(naf, round, 2)
     coverage$TUMOR.ALT.AF <- lapply(taf, round, 2)
     coverage$VariantCaller <- "MuTect"
+  } else{
+    coverage <- cbind(ad, dp)
+    names(coverage) <- c("AD", "DP")
   }
   annotations <- DataFrame(Variant=Variant, Gene=sapply(hits, .collapse))
   annotations <- cbind(annotations, coverage)
-  annotationsIntogen <- merge(annotations, intogen, all.x=TRUE)
-  annotationsPanCancer <- merge(annotationsIntogen, panCancer, all.x=TRUE)
-  annotationsDruggability <- merge(annotationsPanCancer, druggability, all.x=TRUE, sort=TRUE)
-  annotations <- data.frame(sapply(annotationsDruggability, as.character), stringsAsFactors = FALSE)
+  annotations <- data.frame(merge(annotations, cancer_genes, by.x="Gene", by.y="symbol"))
+#  annotations <- sapply(annotations, as.character)
   annotations
-  data.frame(subset(annotations, !is.na(tumor_type)))
 }

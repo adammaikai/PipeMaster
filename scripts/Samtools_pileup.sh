@@ -18,4 +18,6 @@ fi
 # filter for alleles with coverage > 0
 awk -F"\t" '$4 > 0' $2/$1/$1\.pileup > $2/$1/$1\.flt.pileup
 
+rm $2/$1/$1\.pileup
+
 exit 0
