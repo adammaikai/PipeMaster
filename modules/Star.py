@@ -5,7 +5,7 @@ from omics_pipe.utils import *
 p = Bunch(default_parameters)
 
 
-def Star(sample, Star_flag):
+def Star(sample, extension, Star_flag):
     '''Runs Star aligner for RNA-seq.
         
         input:
@@ -26,12 +26,11 @@ def Star(sample, Star_flag):
         GENOME:
         '''
     
-    if p.RNA["TUMOR_EXT"]:
-        sample = sample + p.RNA["TUMOR_EXT"]
-        spawn_job(jobname = 'Star', SAMPLE = sample, LOG_PATH = p.OMICSPIPE["LOG_PATH"], RESULTS_EMAIL = p.OMICSPIPE["EMAIL"], SCHEDULER = p.OMICSPIPE["SCHEDULER"], walltime = p.STAR["WALLTIME"], queue = p.OMICSPIPE["QUEUE"], nodes = p.STAR["NODES"], ppn = p.STAR["CPU"], memory = p.STAR["MEMORY"], script = "/Star.sh", args_list = [sample, p.OMICSPIPE["TEMP_DIR"], p.STAR["RAW_DATA"], p.STAR["RESULTS"], p.STAR["VERSION"], p.STAR["GENOME"], p.STAR["REFGTF"], p.STAR["STARFUSION_LIB"], p.STAR["STARFUSION_VERSION"]])
-        job_status(jobname = 'Star', resultspath = p.STAR["RESULTS"] + "/" + sample, SAMPLE = sample,  outputfilename = sample + "_Aligned.sortedByCoord.out.bam", FLAG_PATH = p.OMICSPIPE["FLAG_PATH"])
+    sample = sample + extension
+    spawn_job(jobname = 'Star', SAMPLE = sample, LOG_PATH = p.OMICSPIPE["LOG_PATH"], RESULTS_EMAIL = p.OMICSPIPE["EMAIL"], SCHEDULER = p.OMICSPIPE["SCHEDULER"], walltime = p.STAR["WALLTIME"], queue = p.OMICSPIPE["QUEUE"], nodes = p.STAR["NODES"], ppn = p.STAR["CPU"], memory = p.STAR["MEMORY"], script = "/Star.sh", args_list = [sample, p.OMICSPIPE["TEMP_DIR"], p.STAR["RAW_DATA"], p.STAR["RESULTS"], p.STAR["VERSION"], p.STAR["GENOME"], p.STAR["REFGTF"], p.STAR["STARFUSION_LIB"], p.STAR["STARFUSION_VERSION"]])
+    job_status(jobname = 'Star', resultspath = p.STAR["RESULTS"] + "/" + sample, SAMPLE = sample,  outputfilename = sample + "_Aligned.sortedByCoord.out.bam", FLAG_PATH = p.OMICSPIPE["FLAG_PATH"])
     return
 
 if __name__ == '__main__':
-    Star(sample, Star_flag)
+    Star(sample, extension, Star_flag)
     sys.exit(0)

@@ -32,4 +32,5 @@ bbduk.sh \
 	$8 \
 	-Xmx${mem}g
 
+
 exit 0

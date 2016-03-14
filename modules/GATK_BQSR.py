@@ -5,7 +5,7 @@ from omics_pipe.utils import *
 p = Bunch(default_parameters)
 
 
-def GATK_BQSR(sample, GATK_BQSR_flag):
+def GATK_BQSR(sample, extension, GATK_BQSR_flag):
     '''Recalibrate base quality scores.
         
         input:
@@ -36,16 +36,11 @@ def GATK_BQSR(sample, GATK_BQSR_flag):
         
         G1000:
         '''
-    samples = []
-    if p.DNA["TUMOR_EXT"]:
-        samples.append(sample + p.DNA["TUMOR_EXT"])
-    if p.DNA["NORMAL_EXT"]:
-        samples.append(sample + p.DNA["NORMAL_EXT"])
-    for sample in samples:
-        spawn_job(jobname = 'GATK_BQSR', SAMPLE = sample, LOG_PATH = p.OMICSPIPE["LOG_PATH"], RESULTS_EMAIL = p.OMICSPIPE["EMAIL"], SCHEDULER = p.OMICSPIPE["SCHEDULER"], walltime = p.BQSR["WALLTIME"], queue = p.OMICSPIPE["QUEUE"], nodes = p.BQSR["NODES"], ppn = p.BQSR["CPU"], memory = p.BQSR["MEMORY"], script = "/GATK_BQSR.sh", args_list = [sample, p.OMICSPIPE["TEMP_DIR"], p.SAMTOOLS["GENOME"], p.BQSR["VERSION"], p.VARSCAN["R_VERSION"], p.CAPTURE_KIT_BED, p.BQSR["ALIGNMENT_DIR"], p.BQSR["DBSNP"], p.BQSR["MILLS"], p.BQSR["G1000"]])
-        job_status(jobname = 'GATK_BQSR', resultspath = p.BQSR["ALIGNMENT_DIR"] + "/" + sample, SAMPLE = sample,  outputfilename = sample + "_gatk_recal.bam", FLAG_PATH = p.OMICSPIPE["FLAG_PATH"])
+    sample = sample + extension
+    spawn_job(jobname = 'GATK_BQSR', SAMPLE = sample, LOG_PATH = p.OMICSPIPE["LOG_PATH"], RESULTS_EMAIL = p.OMICSPIPE["EMAIL"], SCHEDULER = p.OMICSPIPE["SCHEDULER"], walltime = p.BQSR["WALLTIME"], queue = p.OMICSPIPE["QUEUE"], nodes = p.BQSR["NODES"], ppn = p.BQSR["CPU"], memory = p.BQSR["MEMORY"], script = "/GATK_BQSR.sh", args_list = [sample, p.OMICSPIPE["TEMP_DIR"], p.SAMTOOLS["GENOME"], p.BQSR["VERSION"], p.VARSCAN["R_VERSION"], p.CAPTURE_KIT_BED, p.BQSR["ALIGNMENT_DIR"], p.BQSR["DBSNP"], p.BQSR["MILLS"], p.BQSR["G1000"]])
+    job_status(jobname = 'GATK_BQSR', resultspath = p.BQSR["ALIGNMENT_DIR"] + "/" + sample, SAMPLE = sample,  outputfilename = sample + "_gatk_recal.bam", FLAG_PATH = p.OMICSPIPE["FLAG_PATH"])
     return
 
 if __name__ == '__main__':
-    GATK_BQSR(sample, GATK_BQSR_flag)
+    GATK_BQSR(sample, extension, GATK_BQSR_flag)
     sys.exit(0)

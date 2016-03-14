@@ -131,7 +131,7 @@ def snpir_variants_plus(sample, snpir_variants_plus_flag):
     job_status(jobname = 'snpir_variants_plus', resultspath = p.SNPIR["RESULTS"], SAMPLE = sample, outputfilename = sample + "/final_variants.vcf", FLAG_PATH = p.OMICSPIPE["FLAG_PATH"])
     return
 
-def snpir_variants_plus_bwa(sample, snpir_variants_plus_bwa_flag):
+def snpir_variants_plus_bwa(sample, extension, snpir_variants_plus_bwa_flag):
     '''Calls variants using improved SNPIR pipeline.
     
     input: 
@@ -205,10 +205,9 @@ def snpir_variants_plus_bwa(sample, snpir_variants_plus_bwa_flag):
         
         '''
   
-    if p.RNA["TUMOR_EXT"]:
-        sample = sample + p.RNA["TUMOR_EXT"]
-        spawn_job(jobname = 'snpir_variants_plus_bwa', SAMPLE = sample, LOG_PATH = p.OMICSPIPE["LOG_PATH"], RESULTS_EMAIL = p.OMICSPIPE["EMAIL"], SCHEDULER = p.OMICSPIPE["SCHEDULER"], walltime = p.SNPIR["WALLTIME"], queue = p.OMICSPIPE["QUEUE"], nodes = p.SNPIR["NODES"], ppn = p.SNPIR["CPU"], memory = p.SNPIR["MEMORY"], script = "/snpir_plus_bwa.sh", args_list = [p.SNPIR["RESULTS"], p.SNPIR["TEMP"], p.SNPIR["SAMTOOLS_VERSION"], p.SNPIR["BWA_VERSION"], p.SNPIR["PICARD_VERSION"], p.SNPIR["GATK_VERSION"], p.SNPIR["BEDTOOLS_VERSION"], p.SNPIR["UCSC_TOOLS_VERSION"], p.SNPIR["GENOME"], p.SNPIR["REPEAT_MASKER"], p.SNPIR["ANNOTATION"], p.SNPIR["RNA_EDIT"], p.SNPIR["DBSNP"], p.SNPIR["MILLS"], p.SNPIR["G1000"], p.OMICSPIPE["WORKING_DIR"], sample, p.SNPIR["RAW_DATA"], p.SNPIR["VERSION"], p.SNPIR["CONFIG"], p.SNPIR["DIR"], p.SNPIR["ENCODING"], p.SNPIR["LOCIBED"], p.SNPIR["CALLABLELOCI"], p.SNPIR["RGLB"], p.SNPIR["RGPL"], str(p.SNPIR["CPU"]), p.SNPIR["MEMORY"], p.SNPIR["SAMBLASTER_VERSION"], p.SNPIR["SAMBAMBA_VERSION"], p.SNPIR["R_VERSION"], p.SNPIR["BWA_INDEX"], p.STAR["RESULTS"]])
-        job_status(jobname = 'snpir_variants_plus_bwa', resultspath = p.SNPIR["RESULTS"] + "/" + sample, SAMPLE = sample, outputfilename =  sample + "_final_variants_sort.vcf.gz", FLAG_PATH = p.OMICSPIPE["FLAG_PATH"])
+    sample = sample + extension
+    spawn_job(jobname = 'snpir_variants_plus_bwa', SAMPLE = sample, LOG_PATH = p.OMICSPIPE["LOG_PATH"], RESULTS_EMAIL = p.OMICSPIPE["EMAIL"], SCHEDULER = p.OMICSPIPE["SCHEDULER"], walltime = p.SNPIR["WALLTIME"], queue = p.OMICSPIPE["QUEUE"], nodes = p.SNPIR["NODES"], ppn = p.SNPIR["CPU"], memory = p.SNPIR["MEMORY"], script = "/snpir_plus_bwa.sh", args_list = [p.SNPIR["RESULTS"], p.SNPIR["TEMP"], p.SNPIR["SAMTOOLS_VERSION"], p.SNPIR["BWA_VERSION"], p.SNPIR["PICARD_VERSION"], p.SNPIR["GATK_VERSION"], p.SNPIR["BEDTOOLS_VERSION"], p.SNPIR["UCSC_TOOLS_VERSION"], p.SNPIR["GENOME"], p.SNPIR["REPEAT_MASKER"], p.SNPIR["ANNOTATION"], p.SNPIR["RNA_EDIT"], p.SNPIR["DBSNP"], p.SNPIR["MILLS"], p.SNPIR["G1000"], p.OMICSPIPE["WORKING_DIR"], sample, p.SNPIR["RAW_DATA"], p.SNPIR["VERSION"], p.SNPIR["CONFIG"], p.SNPIR["DIR"], p.SNPIR["ENCODING"], p.SNPIR["LOCIBED"], p.SNPIR["CALLABLELOCI"], p.SNPIR["RGLB"], p.SNPIR["RGPL"], str(p.SNPIR["CPU"]), p.SNPIR["MEMORY"], p.SNPIR["SAMBLASTER_VERSION"], p.SNPIR["SAMBAMBA_VERSION"], p.SNPIR["R_VERSION"], p.SNPIR["BWA_INDEX"], p.STAR["RESULTS"]])
+    job_status(jobname = 'snpir_variants_plus_bwa', resultspath = p.SNPIR["RESULTS"] + "/" + sample, SAMPLE = sample, outputfilename =  sample + "_final_variants_sort.vcf.gz", FLAG_PATH = p.OMICSPIPE["FLAG_PATH"])
     return
 
 def snpir_variants_pe(sample, snpir_variants_pe_flag):
@@ -277,6 +276,6 @@ def snpir_variants_pe(sample, snpir_variants_pe_flag):
 if __name__ == '__main__':
     snpir_variants(sample, snpir_variants_flag)
     snpir_variants_plus(sample, snpir_variants_plus_flag)
-    snpir_variants_plus_bwa(sample, snpir_variants_plus_bwa_flag)
+    snpir_variants_plus_bwa(sample, extension, snpir_variants_plus_bwa_flag)
     snpir_variants_pe(sample, snpir_variants_pe_flag)
     sys.exit(0)

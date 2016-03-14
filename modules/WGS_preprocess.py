@@ -35,8 +35,9 @@ def WGS_preprocess(sample, WGS_preprocess_flag):
         SAMTOOLS_VERSION:
         '''
     
-    spawn_job(jobname = 'WGS_preprocess', SAMPLE = sample, LOG_PATH = p.OMICSPIPE["LOG_PATH"], RESULTS_EMAIL = p.OMICSPIPE["EMAIL"], SCHEDULER = p.OMICSPIPE["SCHEDULER"], walltime = "240:00:00", queue = p.OMICSPIPE["QUEUE"], nodes = 1, ppn = 32, memory = "58gb", script = "/WGS_preprocess.sh", args_list = [sample, p.OMICSPIPE["TEMP_DIR"], p.PREPROCESS["GENOME"], p.PREPROCESS["BWA_INDEX"], p.PREPROCESS["BWA_VERSION"], p.PREPROCESS["SAMTOOLS_VERSION"], p.PREPROCESS["SAMBAMBA_VERSION"], p.PREPROCESS["SAMBLASTER_VERSION"], p.GATK["VERSION"], p.CAPTURE_KIT_BED, p.PREPROCESS["ALIGNMENT_DIR"], p.PREPROCESS["FASTQ_PATH"], p.OMICSPIPE["LOG_PATH"], p.GATK["DBSNP"], p.GATK["MILLS"], p.GATK["G1000"]])
-    job_status(jobname = 'WGS_preprocess', resultspath = p.PREPROCESS["RESULTS"], SAMPLE = sample,  outputfilename = sample + "_gatk_recal.bam", FLAG_PATH = p.OMICSPIPE["FLAG_PATH"])
+    sample = sample + p.DNA["TUMOR_EXT"]
+    spawn_job(jobname = 'WGS_preprocess', SAMPLE = sample, LOG_PATH = p.OMICSPIPE["LOG_PATH"], RESULTS_EMAIL = p.OMICSPIPE["EMAIL"], SCHEDULER = p.OMICSPIPE["SCHEDULER"], walltime = "240:00:00", queue = p.OMICSPIPE["QUEUE"], nodes = 1, ppn = 32, memory = "58gb", script = "/WGS_preprocess.sh", args_list = [sample, p.OMICSPIPE["TEMP_DIR"], p.PREPROCESS["GENOME"], p.PREPROCESS["BWA_INDEX"], p.PREPROCESS["BWA_VERSION"], p.PREPROCESS["SAMTOOLS_VERSION"], p.PREPROCESS["SAMBAMBA_VERSION"], p.PREPROCESS["SAMBLASTER_VERSION"], p.GATK["VERSION"], p.PREPROCESS["ALIGNMENT_DIR"], p.PREPROCESS["FASTQ_PATH"], p.OMICSPIPE["LOG_PATH"], p.GATK["DBSNP"], p.GATK["MILLS"], p.GATK["G1000"]])
+    job_status(jobname = 'WGS_preprocess', resultspath = p.PREPROCESS["ALIGNMENT_DIR"], SAMPLE = sample,  outputfilename = sample + "_gatk_recal.bam", FLAG_PATH = p.OMICSPIPE["FLAG_PATH"])
     return
 
 if __name__ == '__main__':

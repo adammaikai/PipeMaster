@@ -5,7 +5,7 @@ from omics_pipe.utils import *
 p = Bunch(default_parameters)
 
 
-def MuTect(sample, MuTect_flag):
+def MuTect(sample, tumor, normal, MuTect_flag):
     '''Runs MuTect on paired tumor/normal samples to detect somatic point mutations in cancer genomes.
         
         input:
@@ -31,10 +31,10 @@ def MuTect(sample, MuTect_flag):
         CAPTURE_KIT_BED:
         '''
     
-    spawn_job(jobname = 'MuTect', SAMPLE = sample, LOG_PATH = p.OMICSPIPE["LOG_PATH"], RESULTS_EMAIL = p.OMICSPIPE["EMAIL"], SCHEDULER = p.OMICSPIPE["SCHEDULER"],  walltime = p.MUTECT["WALLTIME"], queue = p.OMICSPIPE["QUEUE"], nodes = p.MUTECT["NODES"], ppn = p.MUTECT["CPU"], memory = p.MUTECT["MEMORY"], script = "/MuTect.sh", args_list = [sample, p.MUTECT["RESULTS"], p.MUTECT["COSMIC"], p.BQSR["DBSNP"], p.CAPTURE_KIT_BED, p.BQSR["ALIGNMENT_DIR"], p.SAMTOOLS["GENOME"], p.MUTECT["VERSION"], p.DNA["NORMAL_EXT"], p.DNA["TUMOR_EXT"]])
+    spawn_job(jobname = 'MuTect', SAMPLE = sample, LOG_PATH = p.OMICSPIPE["LOG_PATH"], RESULTS_EMAIL = p.OMICSPIPE["EMAIL"], SCHEDULER = p.OMICSPIPE["SCHEDULER"],  walltime = p.MUTECT["WALLTIME"], queue = p.OMICSPIPE["QUEUE"], nodes = p.MUTECT["NODES"], ppn = p.MUTECT["CPU"], memory = p.MUTECT["MEMORY"], script = "/MuTect.sh", args_list = [sample, p.MUTECT["RESULTS"], p.MUTECT["COSMIC"], p.BQSR["DBSNP"], p.CAPTURE_KIT_BED, p.BQSR["ALIGNMENT_DIR"], p.SAMTOOLS["GENOME"], p.MUTECT["VERSION"], normal, tumor])
     job_status(jobname = 'MuTect', resultspath = p.MUTECT["RESULTS"] + "/" + sample, SAMPLE = sample,  outputfilename = sample + "mutect.filt.vcf.gz", FLAG_PATH = p.OMICSPIPE["FLAG_PATH"])
     return
 
 if __name__ == '__main__':
-    MuTect(sample, MuTect_flag)
+    MuTect(sample, tumor, normal, MuTect_flag)
     sys.exit(0)
