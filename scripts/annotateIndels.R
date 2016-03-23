@@ -52,7 +52,7 @@ annotateIndels <- function(vcf.path){
     coverage <- cbind(ad, dp)
     names(coverage) <- c("AD", "DP")
   }
-  annotations <- DataFrame(Variant=Variant, Gene=sapply(hits, .collapse))
+  annotations <- DataFrame(Position=paste0(seqnames(indel), ":", start(indel)), Variant=Variant, Gene=sapply(hits, .collapse))
   annotations <- cbind(annotations, coverage)
   annotations <- data.frame(merge(annotations, cancer_genes, by.x="Gene", by.y="symbol"))
 #  annotations <- sapply(annotations, as.character)

@@ -30,6 +30,7 @@ somaticAnnotation <- function(vcf.path, do_filter=TRUE){
                                       "dbnsfp.polyphen2.hdiv.rankscore", "dbnsfp.polyphen2.hdiv.pred", 
                                       "dbnsfp.mutationtaster.converted_rankscore", "dbnsfp.mutationtaster.pred"
   ))
+  annos$Position <- paste0(seqnames(snp), ":", start(snp))
   # Coverage by Depth
   dp <- data.frame(geno(snp)$DP)
   row.names(dp) <- NULL

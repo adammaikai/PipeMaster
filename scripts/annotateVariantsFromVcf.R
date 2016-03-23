@@ -34,6 +34,7 @@ annotateVariantsFromVcf <- function(vcf.path, do_filter=FALSE){
                                         "dbnsfp.polyphen2.hdiv.rankscore", "dbnsfp.polyphen2.hdiv.pred", 
                                         "dbnsfp.mutationtaster.converted_rankscore", "dbnsfp.mutationtaster.pred"
     ))
+    annos$Position <- paste0(seqnames(snp), ":", start(snp))
       dp <- geno(snp)$DP
       row.names(dp) <- NULL
       ad <- geno(snp)$AD
