@@ -14,15 +14,14 @@ cpu=$(grep -c "processor" /proc/cpuinfo)
 ## samtools mpileup
 if [ -z "$5" ]; then
     samtools mpileup -f $4 $2/$1/$1\_gatk_recal.bam > $2/$1/$1\.pileup
-    #sambamba mpileup -t $cpu $2/$1/$1\_realigned_sorted.bam -o $2/$1/$1\.pileup --samtools -f $4
+    #sambamba mpileup -t $cpu $2/$1/$1\_gatk_recal.bam -o $2/$1/$1\.pileup --samtools -f $4
 else
     samtools mpileup -f $4 --positions $5 $2/$1/$1\_gatk_recal.bam > $2/$1/$1\.pileup
-    #sambamba mpileup -t $cpu -L $5 $2/$1/$1\_realigned_sorted.bam -o $2/$1/$1\.pileup --samtools -f $4
+    #sambamba mpileup -t $cpu -L $5 $2/$1/$1\_gatk_recal.bam -o $2/$1/$1\.pileup --samtools -f $4
 fi
 
 # filter for alleles with coverage > 0
-#awk -F"\t" '$4 > 0' $2/$1/$1\.pileup > $2/$1/$1\.flt.pileup
-
-#rm $2/$1/$1\.pileup
+awk -F"\t" '$4 > 0' $2/$1/$1\.pileup > $2/$1/$1\.flt.pileup
+rm $2/$1/$1\.pileup
 
 exit 0

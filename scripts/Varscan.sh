@@ -35,14 +35,12 @@ mkdir -p "$7/$1"
 ## varscan2 call variants
 VarScan.v$5.jar \
 mpileup2cns \
-$6/$1/$1\.pileup \
+$6/$1/$1\.flt.pileup \
 $8 \
-> $2/$1\_varscan.vcf
+> $7/$1/$1\_varscan.vcf
 
-vcf-sort $2/$1\_varscan.vcf > $2/$1\_varscan.4.1.vcf
-rm $2/$1\_varscan.vcf
 
-bgzip -f $2/$1\_varscan.4.1.vcf > $7/$1/$1\_varscan.4.1.vcf
-tabix -f -p vcf $7/$1/$1\_varscan.4.1.vcf.gz
+bgzip -f $7/$1/$1\_varscan.vcf
+tabix -f -p vcf $7/$1/$1\_varscan.vcf.gz
 
 exit 0

@@ -13,7 +13,7 @@ mkdir -p "$3/$1"
 if [ "$5" == "DNA" ]; then
 qualimap $6 \
 -gff $7 \
--bam $2/$1/$1\_realigned_sorted.bam \
+-bam $2/$1/$1\_gatk_recal.bam \
 -outdir $3/$1
 else
 qualimap $6 \

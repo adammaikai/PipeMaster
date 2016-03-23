@@ -95,14 +95,19 @@ if [ -z "${14}" ]; then
 	--ts_filter_level 99.0 \
 	-mode INDEL
 
-	java -Xmx4g -jar `which GenomeAnalysisTK.jar` \
-	-T SelectVariants \
-	-nt $cpu \
-	-R $3 \
-	--excludeNonVariants \
-	--excludeFiltered \
-	--variant $2/$1\_gatk_final.vcf \
-	--out $7/$1/$1\_vqsr.vcf
+	if [ -f $2/$1\_gatk.vcf ]; then 
+		java -Xmx4g -jar `which GenomeAnalysisTK.jar` \
+		-T SelectVariants \
+		-nt $cpu \
+		-R $3 \
+		--excludeNonVariants \
+		--excludeFiltered \
+		--variant $2/$1\_gatk.vcf \
+		--out $2/$1\_gatk.filt.vcf
+
+		bgzip -f $2/$1\_gatk.vcf > $7/$1/$1\_gatk.filt.vcf.gz
+		tabix -f -p vcf $7/$1/$1\_gatk.filt.vcf.gz
+	fi
 
 	if [ -f $7/$1/$1\_vqsr.vcf ]; then
 		rm $2/$1\_gatk_recalibrate_indel.vcf
@@ -128,8 +133,17 @@ else
 	-stand_call_conf 30 \
 	-o $2/$1\_gatk.vcf
 
-	bgzip -f -c $2/$1\_gatk.vcf > $7/$1/$1\_gatk.vcf.gz
-	tabix -f -p vcf  $7/$1/$1\_gatk.vcf.gz
+	java -Xmx8g -jar `which GenomeAnalysisTK.jar` \
+	-T SelectVariants \
+	-nt $cpu \
+	-R $3 \
+	--excludeNonVariants \
+	--excludeFiltered \
+	--variant $2/$1\_gatk.vcf \
+	--out $2/$1\_gatk.filt.vcf
+
+	bgzip -f $2/$1\_gatk.filt.vcf > $7/$1/$1\_gatk.filt.vcf.gz
+	tabix -f -p vcf  $7/$1/$1\_gatk.filt.vcf.gz
 	rm $2/$1\_gatk.vcf
 fi
 
