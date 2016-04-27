@@ -30,7 +30,7 @@ def Qualimap(sample, extension, Qualimap_flag):
         options = p.QUALIMAP["RNA_OPTIONS"]
         sample_type = "RNA"
 
-    sample = sample + p.DNA["TUMOR_EXT"]
+    sample = sample + extension
     spawn_job(jobname = 'Qualimap', SAMPLE =  sample, LOG_PATH = p.OMICSPIPE["LOG_PATH"], RESULTS_EMAIL = p.OMICSPIPE["EMAIL"], SCHEDULER = p.OMICSPIPE["SCHEDULER"], walltime = p.QUALIMAP["WALLTIME"], queue = p.OMICSPIPE["QUEUE"], nodes = p.QUALIMAP["NODES"], ppn = p.QUALIMAP["CPU"], memory = p.QUALIMAP["MEMORY"], script = "/Qualimap.sh", args_list = [sample, p.QUALIMAP["ALIGNMENT_DIR"], p.QUALIMAP["RESULTS"], p.QUALIMAP["VERSION"], sample_type, options, p.CAPTURE_KIT_BED])
     job_status(jobname = 'Qualimap', resultspath = p.QUALIMAP["RESULTS"] + "/" + sample, SAMPLE = sample,  outputfilename = "genome_results.txt", FLAG_PATH = p.OMICSPIPE["FLAG_PATH"])
     return

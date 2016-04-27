@@ -27,12 +27,9 @@ annotateVariantsFromVcf <- function(vcf.path, do_filter=FALSE){
     snp <- vcf[isSNV(vcf)]
     hgvs <- formatHgvs(snp, "snp")
     annos <- getVariants(hgvs, fields=c("cadd.gene.prot.protpos", "cadd.oaa", "cadd.naa", "dbsnp.rsid", "cadd.consequence", 
-                                        "snpeff.ann.hgvs_p",
                                         "cadd.gene.genename",
-                                        "cosmic.cosmic_id", "cosmic.tumor_site", "exac.af",
-                                        "dbnsfp.1000gp3.af", "cadd.phred",
-                                        "dbnsfp.polyphen2.hdiv.rankscore", "dbnsfp.polyphen2.hdiv.pred", 
-                                        "dbnsfp.mutationtaster.converted_rankscore", "dbnsfp.mutationtaster.pred"
+                                        "cosmic.cosmic_id", "cosmic.tumor_site", "exac.af", "cadd.phred", "dbnsfp.polyphen2.hdiv.pred", 
+                                        "dbnsfp.mutationtaster.pred"
     ))
     annos$Position <- paste0(seqnames(snp), ":", start(snp))
       dp <- geno(snp)$DP
@@ -46,17 +43,16 @@ annotateVariantsFromVcf <- function(vcf.path, do_filter=FALSE){
       annos <- subset(annos, cadd.consequence %in% c("STOP_GAINED","STOP_LOST", 
                                                    "NON_SYNONYMOUS", "SPLICE_SITE", 
                                                    "CANONICAL_SPLICE", "REGULATORY"))
-      annos <- arrange(data.frame(subset(annos, is.na(exac.af) | exac.af < 0.05)), -dbnsfp.mutationtaster.converted_rankscore)
-    }
+      annos <- data.frame(subset(annos, is.na(exac.af) | exac.af < 0.05))}
     annos <- data.frame(annos)
     setnames(annos, 
-             old = c("query", "cadd.naa", "cadd.oaa", "dbsnp.rsid", "cadd.consequence", "snpeff.ann",
-                     "cosmic.cosmic_id", "cosmic.tumor_site", "exac.af", "dbnsfp.1000gp3.af", "cadd.phred",
-                     "dbnsfp.polyphen2.hdiv.rankscore", "dbnsfp.polyphen2.hdiv.pred",
-                     "dbnsfp.mutationtaster.converted_rankscore", "dbnsfp.mutationtaster.pred"), 
-             new = c("Variant", "Ref.AA", "Alt.AA", "dbSNP rsid", "Consequence", "Amino Acid",
-                     "COSMIC ID", "COSMIC Tumor Site", "ExAC AF", "G1000_AF", "CADD Score",
-                     "Polyphen-2 Score", "Polyphen-2 Prediction", "MutationTaster Score", "MutationTaster Prediction"))
+             old = c("query", "cadd.naa", "cadd.oaa", "dbsnp.rsid", "cadd.consequence",
+                     "cosmic.cosmic_id", "cosmic.tumor_site", "exac.af", "cadd.phred",
+                     "dbnsfp.polyphen2.hdiv.pred",
+                     "dbnsfp.mutationtaster.pred"), 
+             new = c("Variant", "Ref.AA", "Alt.AA", "dbSNP rsid", "Consequence",
+                     "COSMIC ID", "COSMIC Tumor Site", "ExAC AF", "CADD Score",
+                     "Polyphen-2 Prediction", "MutationTaster Prediction"))
     #names(annos)[names(annos) %in% c("cadd.gene.genename", "cadd.gene")] <- "Gene"
     annos <- DataFrame(annos) ##for some reason have to do this to eliminate the following columns
     annos[c("X_id", "notfound", "X_score", "cadd._license")] <- NULL
@@ -67,7 +63,7 @@ annotateVariantsFromVcf <- function(vcf.path, do_filter=FALSE){
     ## merge annotations
     annotations <- merge(annos, cancer_genes, by.x="Gene", by.y="symbol")
     annotations <- rbind.fill(annotations, annotateIndels(vcf.path))
-    annotations[is.na(annotations)] <- ""
+    #annotations[is.na(annotations)] <- ""
     write.table(annotations, gsub(".vcf.gz", ".annotated.txt", vcf.path), sep="\t", row.names=FALSE, quote=FALSE)
     annotations
 }

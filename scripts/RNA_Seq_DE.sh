@@ -8,6 +8,6 @@ module load R/$2
 
 ####INPUTS: $1=sample 
 
-Rscript ~/.virtualenvs/op2/omics_pipe/omics_pipe/scripts/gep.R  
+Rscript ~/.virtualenvs/pm/omics_pipe/omics_pipe/scripts/gep.R  
 
 exit 0

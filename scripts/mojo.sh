@@ -19,4 +19,9 @@ MOJO \
 --fq2 $2/$1/$1_2.fastq.gz \
 --cores $6 \
 --mem 50
+
+cat $3/$1/$1/$1\.fusions | awk -F '\t' '{print $1}' | sed -e 's/_/--/g' > $3/$1/$1/$1\.fusions.genes
+
+
+
 exit 0

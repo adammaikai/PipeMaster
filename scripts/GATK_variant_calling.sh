@@ -66,8 +66,8 @@ if [ -z "${14}" ]; then
 		rm $2/$1\_gatk_recalibrate_SNP_plots.R
 	else
 		bgzip -f -c $2/$1\_gatk.vcf > $7/$1/$1\_gatk.vcf.gz
-		tabix -f -p vcf  $7/$1/$1\_gatk.vcf.gz
-		rm $2/$1\_gatk.vc
+		tabix -f -p vcf $7/$1/$1\_gatk.vcf.gz
+		rm $2/$1\_gatk.vcf
 	fi
 
 	java -Xmx16g -jar `which GenomeAnalysisTK.jar` \
@@ -91,7 +91,7 @@ if [ -z "${14}" ]; then
 	-input $2/$1\_gatk_recalibrate_SNP.vcf \
 	-tranchesFile $2/$1\_gatk_recalibrate_INDEL.tranches \
 	-recalFile $2/$1\_gatk_recalibrate_INDEL.recal \
-	-o $2/$1\_gatk_final.vcf \
+	-o $2/$1\_gatk_vqsr.vcf \
 	--ts_filter_level 99.0 \
 	-mode INDEL
 
@@ -103,19 +103,29 @@ if [ -z "${14}" ]; then
 		--excludeNonVariants \
 		--excludeFiltered \
 		--variant $2/$1\_gatk.vcf \
-		--out $2/$1\_gatk.filt.vcf
+		--out $7/$1/$1\_gatk.filt.vcf
 
-		bgzip -f $2/$1\_gatk.vcf > $7/$1/$1\_gatk.filt.vcf.gz
+		bgzip -f $7/$1/$1\_gatk.filt.vcf
 		tabix -f -p vcf $7/$1/$1\_gatk.filt.vcf.gz
 	fi
 
-	if [ -f $7/$1/$1\_vqsr.vcf ]; then
+	if [ -f $2/$1\_gatk_vqsr.vcf ]; then
 		rm $2/$1\_gatk_recalibrate_indel.vcf
 		rm $2/$1\_gatk_recalibrate_indel.recal
 		rm $2/$1\_gatk_recalibrate_indel.tranches
 		rm $2/$1\_gatk_recalibrate_indel_plots.R
-		bgzip -f $7/$1/$1\_vqsr.vcf
-		tabix -f -p vcf $7/$1/$1\_vqsr.vcf.gz
+
+		java -Xmx4g -jar `which GenomeAnalysisTK.jar` \
+		-T SelectVariants \
+		-nt $cpu \
+		-R $3 \
+		--excludeNonVariants \
+		--excludeFiltered \
+		--variant $2/$1\_gatk_vqsr.vcf \
+		--out $7/$1/$1\_gatk_vqsr.filt.vcf
+
+		bgzip -f $7/$1/$1\_gatk_vqsr.filt.vcf
+		tabix -f -p vcf $7/$1/$1\_gatk_vqsr.filt.vcf.gz
 	fi
 
 else
@@ -140,9 +150,9 @@ else
 	--excludeNonVariants \
 	--excludeFiltered \
 	--variant $2/$1\_gatk.vcf \
-	--out $2/$1\_gatk.filt.vcf
+	--out $7/$1/$1\_gatk.filt.vcf
 
-	bgzip -f $2/$1\_gatk.filt.vcf > $7/$1/$1\_gatk.filt.vcf.gz
+	bgzip -f $7/$1/$1\_gatk.filt.vcf
 	tabix -f -p vcf  $7/$1/$1\_gatk.filt.vcf.gz
 	rm $2/$1\_gatk.vcf
 fi

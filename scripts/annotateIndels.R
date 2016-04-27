@@ -18,7 +18,7 @@ annotateIndels <- function(vcf.path){
   }
   loc <- paste("hg19.", seqnames(indel), ":", start(indel), "-", end(indel), sep="")
   Variant <- formatHgvs(indel, variant_type=c("insertion", "deletion"))
-  hits <- lapply(loc, function(i) query(i)$hits$symbol)
+  hits <- lapply(loc, function(i) query(i, species="human")$hits$symbol)
   
   dp <- data.frame(geno(indel)$DP)
   row.names(dp) <- NULL

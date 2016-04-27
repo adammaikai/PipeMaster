@@ -383,6 +383,7 @@ bgzip -f $out_dir/final_variants_sort.vcf
 mv $out_dir/final_variants_sort.vcf.gz $out_dir/${sample}_final_variants_sort.vcf.gz
 tabix -f -p vcf $out_dir/${sample}_final_variants_sort.vcf.gz
 
+Rscript ~/.virtualenvs/pm/omics_pipe/omics_pipe/scripts/annotateVariantsFromVcf.R $out_dir/${sample}_final_variants_sort.vcf.gz FALSE
 ################################################################################
 # clean up stuff..
 ################################################################################
