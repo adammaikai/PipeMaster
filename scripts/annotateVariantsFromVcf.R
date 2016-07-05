@@ -7,11 +7,12 @@ library(jsonlite)
 library(myvariant)
 library(VariantAnnotation)
 library(data.table)
-source("~/.virtualenvs/pm/omics_pipe/omics_pipe/scripts/annotateIndels.R")
 
 args <- commandArgs(TRUE)
-vcfPath <- args[1]
-filter <- args[2]
+annotateIndelsScript <- args[1]
+source(annotateIndelsScript)
+vcfPath <- args[2]
+filter <- args[3]
 
 
 .collapse <- function (...) {
@@ -61,11 +62,12 @@ annotateVariantsFromVcf <- function(vcf.path, do_filter=FALSE){
     annos <- lapply(annos, function(i) sapply(i, .collapse))
     annos <- data.frame(annos)
     ## merge annotations
-    annotations <- merge(annos, cancer_genes, by.x="Gene", by.y="symbol")
-    annotations <- rbind.fill(annotations, annotateIndels(vcf.path))
+    annos$in_cancer <- ifelse(annos$Gene %in% cancer_genes$symbol, yes="yes", no="no")
+    #annotations <- merge(annos, cancer_genes, by.x="Gene", by.y="symbol")
+    annotations <- rbind.fill(annos, annotateIndels(vcf.path))
     #annotations[is.na(annotations)] <- ""
     write.table(annotations, gsub(".vcf.gz", ".annotated.txt", vcf.path), sep="\t", row.names=FALSE, quote=FALSE)
-    annotations
+    #annotations
 }
 
 annotateVariantsFromVcf(vcfPath, do_filter=filter)

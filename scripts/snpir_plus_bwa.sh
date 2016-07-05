@@ -194,7 +194,7 @@ if [ $encoding == "phred64" ]; then
 		-o $out_dir/output.intervals \
 		-known $mills \
 		-known $g1000 \
-		-nt 8 \
+		-nt $cpu \
 		--fix_misencoded_quality_scores #\
 		#--filter_reads_with_N_cigar
 	
@@ -218,7 +218,7 @@ else
 		-o $out_dir/output.intervals \
 		-known $mills \
 		-known $g1000 \
-		-nt 8 #\
+		-nt $cpu #\
 		#--filter_reads_with_N_cigar
 	
 	java -Xmx50g -Djava.io.tmpdir=$TMPDIR -jar `which GenomeAnalysisTK.jar` \
@@ -245,7 +245,7 @@ java -Xmx50g -jar `which GenomeAnalysisTK.jar` \
     -knownSites $mills \
     -knownSites $g1000 \
     -o $out_dir/recal_data.table \
-    -nct $ncpu
+    -nct $cpu
     
 	#2 Do a second pass to analyze covariation remaining after recalibration
 ###THIS PART FINISHES SUCCESSFULLY
@@ -258,7 +258,7 @@ java -Xmx28g -jar `which GenomeAnalysisTK.jar` \
     -knownSites $g1000 \
     -BQSR $out_dir/recal_data.table \
     -o $out_dir/post_recal_data.table \
-    -nct $ncpu
+    -nct $cpu
 
 	#3 Generate before / after plots This part throws error
 #java -jar `which GenomeAnalysisTK.jar` \
@@ -306,8 +306,7 @@ java -Xmx28g -jar `which GenomeAnalysisTK.jar` -T HaplotypeCaller \
 	-out_mode EMIT_VARIANTS_ONLY \
 	-rf BadCigar \
 	-o $out_dir/raw_variants.vcf \
-	-nt 1 \
-	-nct 32
+	-nct $cpu
 
 # do the filtering
 # GATK based variant filtering
@@ -324,76 +323,79 @@ java -jar `which GenomeAnalysisTK.jar` \
 	-o $out_dir/raw_variants_gatk_filt.vcf 
 
 
-# convert vcf format into custom SNPiR format and filter variants with quality <20
-$SNPiR/convertVCF.sh $out_dir/raw_variants_gatk_filt.vcf $out_dir/raw_variants.txt 20
+# # convert vcf format into custom SNPiR format and filter variants with quality <20
+# $SNPiR/convertVCF.sh $out_dir/raw_variants_gatk_filt.vcf $out_dir/raw_variants.txt 20
 
-# filter mismatches at read ends
-# note: add the -illumina option if your reads are in Illumina 1.3+ quality format
-	$SNPiR/filter_mismatch_first6bp.pl \
-	-infile $out_dir/raw_variants.txt \
-	-outfile $out_dir/raw_variants.rmhex.txt \
-	-bamfile $out_dir/merged.conv.sort.rd.split.realigned.bam
+# # filter mismatches at read ends
+# # note: add the -illumina option if your reads are in Illumina 1.3+ quality format
+# 	$SNPiR/filter_mismatch_first6bp.pl \
+# 	-infile $out_dir/raw_variants.txt \
+# 	-outfile $out_dir/raw_variants.rmhex.txt \
+# 	-bamfile $out_dir/merged.conv.sort.rd.split.realigned.bam
 
-# filter variants in repetitive regions
-awk '{OFS="\t";$2=$2-1"\t"$2;print $0}' $out_dir/raw_variants.rmhex.txt | \
-	intersectBed -a stdin -b $RepeatMasker -v | \
-	cut -f1,3-7 > $out_dir/raw_variants.rmhex.rmsk.txt
+# # filter variants in repetitive regions
+# awk '{OFS="\t";$2=$2-1"\t"$2;print $0}' $out_dir/raw_variants.rmhex.txt | \
+# 	intersectBed -a stdin -b $RepeatMasker -v | \
+# 	cut -f1,3-7 > $out_dir/raw_variants.rmhex.rmsk.txt
 
-# filter intronic sites that are within 4bp of splicing junctions
-# make sure your gene annotation file is in UCSC text format and sorted by chromosome and 
-# transcript start position
-$SNPiR/filter_intron_near_splicejuncts.pl \
-	-infile $out_dir/raw_variants.rmhex.rmsk.txt \
-	-outfile $out_dir/raw_variants.rmhex.rmsk.rmintron.txt \
-	-genefile $gene_annotation
+# # filter intronic sites that are within 4bp of splicing junctions
+# # make sure your gene annotation file is in UCSC text format and sorted by chromosome and 
+# # transcript start position
+# $SNPiR/filter_intron_near_splicejuncts.pl \
+# 	-infile $out_dir/raw_variants.rmhex.rmsk.txt \
+# 	-outfile $out_dir/raw_variants.rmhex.rmsk.rmintron.txt \
+# 	-genefile $gene_annotation
 
-# filter variants in homopolymers
-$SNPiR/filter_homopolymer_nucleotides.pl \
-	-infile $out_dir/raw_variants.rmhex.rmsk.rmintron.txt \
-	-outfile $out_dir/raw_variants.rmhex.rmsk.rmintron.rmhom.txt \
-	-refgenome $hg19_reference
+# # filter variants in homopolymers
+# $SNPiR/filter_homopolymer_nucleotides.pl \
+# 	-infile $out_dir/raw_variants.rmhex.rmsk.rmintron.txt \
+# 	-outfile $out_dir/raw_variants.rmhex.rmsk.rmintron.rmhom.txt \
+# 	-refgenome $hg19_reference
 
-# filter variants that were caused by mismapped reads
-# this may take a while depending on the number of variants to screen and the size of the reference genome
-# note: add the -illumina option if your reads are in Illumina 1.3+ quality format
-	$SNPiR/BLAT_candidates.pl \
-	-infile $out_dir/raw_variants.rmhex.rmsk.rmintron.rmhom.txt \
-	-outfile $out_dir/raw_variants.rmhex.rmsk.rmintron.rmhom.rmblat.txt \
-	-bamfile $out_dir/merged.conv.sort.rd.split.realigned.bam \
-	-refgenome $hg19_reference
+# # filter variants that were caused by mismapped reads
+# # this may take a while depending on the number of variants to screen and the size of the reference genome
+# # note: add the -illumina option if your reads are in Illumina 1.3+ quality format
+# 	$SNPiR/BLAT_candidates.pl \
+# 	-infile $out_dir/raw_variants.rmhex.rmsk.rmintron.rmhom.txt \
+# 	-outfile $out_dir/raw_variants.rmhex.rmsk.rmintron.rmhom.rmblat.txt \
+# 	-bamfile $out_dir/merged.conv.sort.rd.split.realigned.bam \
+# 	-refgenome $hg19_reference
 
-# remove known RNA editing sites
-awk '{OFS="\t";$2=$2-1"\t"$2;print $0}' $out_dir/raw_variants.rmhex.rmsk.rmintron.rmhom.rmblat.txt | \
-	intersectBed -a stdin -b $rnaedit -v  > \
-	$out_dir/raw_variants.rmhex.rmsk.rmintron.rmhom.rmblat.rmedit.bed
+# # remove known RNA editing sites
+# awk '{OFS="\t";$2=$2-1"\t"$2;print $0}' $out_dir/raw_variants.rmhex.rmsk.rmintron.rmhom.rmblat.txt | \
+# 	intersectBed -a stdin -b $rnaedit -v  > \
+# 	$out_dir/raw_variants.rmhex.rmsk.rmintron.rmhom.rmblat.rmedit.bed
 	
-# extract variants from the raw vcf
-skipn=$(cat $out_dir/raw_variants.vcf | grep '#' | wc -l)
-cat $out_dir/raw_variants.vcf | grep '#' > $out_dir/header.vcf 
-Rscript $extractvcf $out_dir $skipn
-cat $out_dir/header.vcf $out_dir/red_variants.vcf > $out_dir/final_variants.vcf
+# # extract variants from the raw vcf
+# skipn=$(cat $out_dir/raw_variants.vcf | grep '#' | wc -l)
+# cat $out_dir/raw_variants.vcf | grep '#' > $out_dir/header.vcf 
+# Rscript $extractvcf $out_dir $skipn
+# cat $out_dir/header.vcf $out_dir/red_variants.vcf > $out_dir/final_variants.vcf
 
-# sort vcf file
-java -jar `which SortVcf.jar` \
-	I=$out_dir/final_variants.vcf \
-	O=$out_dir/final_variants_sort.vcf
+# # sort vcf file
+# java -jar `which SortVcf.jar` \
+# 	I=$out_dir/final_variants.vcf \
+# 	O=$out_dir/final_variants_sort.vcf
 
-# zip and index
-bgzip -f $out_dir/final_variants_sort.vcf 
-mv $out_dir/final_variants_sort.vcf.gz $out_dir/${sample}_final_variants_sort.vcf.gz
-tabix -f -p vcf $out_dir/${sample}_final_variants_sort.vcf.gz
+# # zip and index
+# bgzip -f $out_dir/final_variants_sort.vcf 
+# mv $out_dir/final_variants_sort.vcf.gz $out_dir/${sample}_final_variants_sort.vcf.gz
+# tabix -f -p vcf $out_dir/${sample}_final_variants_sort.vcf.gz
 
-Rscript ~/.virtualenvs/pm/omics_pipe/omics_pipe/scripts/annotateVariantsFromVcf.R $out_dir/${sample}_final_variants_sort.vcf.gz FALSE
-################################################################################
-# clean up stuff..
-################################################################################
-#rm $out_dir/*.bam
-#rm $out_dir/*.bai
-#rm $out_dir/*.vcf
-#rm $out_dir/*txt*
-#rm $out_dir/*.idx
-#rm $out_dir/output.intervals $out_dir/post_recal_data.table $out_dir/recal_data.table
-#rm $out_dir/raw_variants.rmhex.rmsk.rmintron.rmhom.rmblat.rmedit.bed
+# ################################################################################
+# # clean up stuff..
+# ################################################################################
+# rm $out_dir/*.bam
+# rm $out_dir/*.bai
+# rm $out_dir/*.vcf
+# rm $out_dir/*txt*
+# rm $out_dir/*.idx
+# rm $out_dir/output.intervals $out_dir/post_recal_data.table $out_dir/recal_data.table
+# rm $out_dir/raw_variants.rmhex.rmsk.rmintron.rmhom.rmblat.rmedit.bed
+# rm $out_dir/convertCoordinates*
+
+# # annotate variants
+# Rscript ~/.virtualenvs/pm/omics_pipe/omics_pipe/scripts/annotateVariantsFromVcf.R $out_dir/${sample}_final_variants_sort.vcf.gz FALSE
 
 # record runtime
 date2=$(date +%s.%N)

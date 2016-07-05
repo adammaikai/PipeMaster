@@ -5,7 +5,7 @@ from omics_pipe.utils import *
 p = Bunch(default_parameters)
 
 
-def WGS_preprocess(sample, WGS_preprocess_flag):
+def WGS_preprocess(sample, extension, WGS_preprocess_flag):
     '''Preprocessing steps for whole genome sequencing.
         
         input:
@@ -35,11 +35,11 @@ def WGS_preprocess(sample, WGS_preprocess_flag):
         SAMTOOLS_VERSION:
         '''
     
-    sample = sample + p.DNA["TUMOR_EXT"]
-    spawn_job(jobname = 'WGS_preprocess', SAMPLE = sample, LOG_PATH = p.OMICSPIPE["LOG_PATH"], RESULTS_EMAIL = p.OMICSPIPE["EMAIL"], SCHEDULER = p.OMICSPIPE["SCHEDULER"], walltime = "240:00:00", queue = p.OMICSPIPE["QUEUE"], nodes = 1, ppn = 32, memory = "58gb", script = "/WGS_preprocess.sh", args_list = [sample, p.OMICSPIPE["TEMP_DIR"], p.PREPROCESS["GENOME"], p.PREPROCESS["BWA_INDEX"], p.PREPROCESS["BWA_VERSION"], p.PREPROCESS["SAMTOOLS_VERSION"], p.PREPROCESS["SAMBAMBA_VERSION"], p.PREPROCESS["SAMBLASTER_VERSION"], p.GATK["VERSION"], p.PREPROCESS["ALIGNMENT_DIR"], p.PREPROCESS["FASTQ_PATH"], p.OMICSPIPE["LOG_PATH"], p.GATK["DBSNP"], p.GATK["MILLS"], p.GATK["G1000"]])
+    sample = sample + extension
+    spawn_job(jobname = 'WGS_preprocess', SAMPLE = sample, LOG_PATH = p.OMICSPIPE["LOG_PATH"], RESULTS_EMAIL = p.OMICSPIPE["EMAIL"], SCHEDULER = p.OMICSPIPE["SCHEDULER"], walltime = "240:00:00", queue = p.OMICSPIPE["QUEUE"], nodes = 1, ppn = 32, memory = "58gb", script = "/WGS_preprocess.sh", args_list = [sample, p.OMICSPIPE["TEMP_DIR"], p.PREPROCESS["GENOME"], p.PREPROCESS["BWA_INDEX"], p.PREPROCESS["BWA_VERSION"], p.PREPROCESS["SAMTOOLS_VERSION"], p.PREPROCESS["SAMBAMBA_VERSION"], p.PREPROCESS["SAMBLASTER_VERSION"], p.GATK["VERSION"], p.PREPROCESS["ALIGNMENT_DIR"], p.PREPROCESS["FASTQ_PATH"], p.GATK["DBSNP"], p.GATK["MILLS"], p.GATK["G1000"], p.CAPTURE_KIT_BED])
     job_status(jobname = 'WGS_preprocess', resultspath = p.PREPROCESS["ALIGNMENT_DIR"], SAMPLE = sample,  outputfilename = sample + "_gatk_recal.bam", FLAG_PATH = p.OMICSPIPE["FLAG_PATH"])
     return
 
 if __name__ == '__main__':
-    WGS_preprocess(sample, WGS_preprocess_flag)
+    WGS_preprocess(sample, extension, WGS_preprocess_flag)
     sys.exit(0)

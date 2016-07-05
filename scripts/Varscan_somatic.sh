@@ -16,7 +16,7 @@ normal=$(echo $7 | sed -e 's/-DNA//' | cut -c 2-)
 tumor=$(echo $8 | sed -e 's/-DNA//' | cut -c 2-)
 
 ## Varscan2 call variants
-VarScan.v$2.jar somatic $6/$1$7/$1$7.flt.pileup $6/$1$8/$1$8.flt.pileup $5/$1/$1\_$tumor\_$normal\_varscan_somatic --output-vcf 1
+VarScan.v$2.jar somatic $6/$1$7/$1$7.flt.pileup $6/$1$8/$1$8.flt.pileup $5/$1/$1\_$tumor\_$normal\_varscan_somatic --min-var-freq 0.01 --output-vcf 1
 
 ## Process output
 VarScan.v$2.jar processSomatic \

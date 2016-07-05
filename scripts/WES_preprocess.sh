@@ -18,8 +18,15 @@ mkdir -p "${11}/$1"
 
 RGR="@RG\tID:1\tLB:SRR\tPL:ILLUMINA\tSM:$1"
 
+if [ -f ${12}/$1_1.fastq.gz ]
+then
+	rawdata_dir=${12}
+else
+	rawdata_dir=${12}/$1
+fi
+
 ## align to hg19
-bwa mem -M -t $cpu -R $RGR $4 ${12}/$1/$1\_1.fastq.gz ${12}/$1/$1\_2.fastq.gz \
+bwa mem -M -t $cpu -R $RGR $4 $rawdata_dir/$1_1.fastq.gz $rawdata_dir/$1_2.fastq.gz \
 | samblaster --splitterFile >(samtools view -S -u /dev/stdin \
 | sambamba sort -t $cpu -m 10G --tmpdir $2 -o $2/$1\_sorted.bam /dev/stdin) \
 --discordantFile >(samtools view -S -u /dev/stdin \

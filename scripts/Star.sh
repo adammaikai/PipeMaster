@@ -6,9 +6,8 @@ source $MODULESHOME/init/bash
 
 module load star/$5
 module load star-fusion/$9
-module load fusionannotator/$10
 
-####INPUTS $1=sample $2=TEMP_DIR $3=RAW_DATA_DIR $4=ALIGNMENT_DIR $5=STAR_VERSION $6=GENOME $7=REF_GTF $8=STARFUSION_LIB $9=STARFUSION_VERSION $10=FUSIONANNOTATOR_VERSION $11=FUSIONANNOTATOR_LIB
+####INPUTS $1=sample $2=TEMP_DIR $3=RAW_DATA_DIR $4=ALIGNMENT_DIR $5=STAR_VERSION $6=GENOME $7=REF_GTF $8=STARFUSION_LIB $9=STARFUSION_VERSION
 
 mkdir -p "$4/$1"
 
@@ -17,6 +16,13 @@ cpu=$(grep -c "processor" /proc/cpuinfo)
 rgid="1234"
 rgpl="ILLUMINA"
 rglb="TrueSeq"
+
+if [ -f $3/$1_1.fastq.gz ]
+then
+	rawdata_dir=$3
+else
+	rawdata_dir=$3/$1
+fi
 
 # make sure temp is empty
 if [ -d $2/$1 ]
@@ -28,10 +34,10 @@ mkdir -p $2/$1 && cd $2/$1
 
 STAR \
 --genomeDir $6 \
---readFilesIn $3/$1/$1_1.fastq.gz $3/$1/$1_2.fastq.gz \
+--readFilesIn $rawdata_dir/$1_1.fastq.gz $rawdata_dir/$1_2.fastq.gz \
 --readFilesCommand zcat \
 --twopassMode Basic \
---quantMode TranscriptomeSAM GeneCounts \
+--quantMode GeneCounts \
 --sjdbGTFfile $7 \
 --alignIntronMax 200000 \
 --alignMatesGapMax 200000 \
@@ -58,9 +64,5 @@ STAR-Fusion \
 -J $4/$1/$1\_Chimeric.out.junction \
 --output_dir $4/$1
 
-#Fusion Annotator
-/opt/software/fusionannotator/FusionAnnotator-0.0.2/FusionAnnotator \
---fusion_annot_lib $11\
---annotate $4/$1/star-fusion.fusion_candidates.final.abridged
 
 exit 0

@@ -35,6 +35,7 @@ java -Xmx28g -Djava.io.tmpdir=$2 -jar `which GenomeAnalysisTK.jar` \
 if [ -f $$7/$1/$1\_gatk_recal.bam ]; then
 	rm $2/$1\_gatk.intervals
 	rm $2/$1\_gatk_recal_data.table
+	rm $7/$1/$1\_realigned_sorted.ba*
 fi
 
 exit 0
